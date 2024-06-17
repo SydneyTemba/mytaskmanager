@@ -1,10 +1,9 @@
 import React from 'react';
-//import './TaskItem.css';
 
 const TaskItem = ({ task, deleteTask }) => {
   return (
     <li className="task-item">
-      {task}
+      <span>{task.description}</span>
       <button onClick={deleteTask} className="delete-button">Delete</button>
     </li>
   );

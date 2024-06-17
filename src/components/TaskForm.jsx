@@ -1,26 +1,24 @@
 import React, { useState } from 'react';
-//import './TaskForm.css';
 
 const TaskForm = ({ addTask }) => {
-  const [task, setTask] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (task.trim()) {
-      addTask(task);
-      setTask('');
-    }
+    addTask({ description: taskDescription });
+    setTaskDescription('');
   };
 
   return (
-    <form onSubmit={handleSubmit} className="task-form">
-      <input 
-        type="text" 
-        value={task} 
-        onChange={(e) => setTask(e.target.value)} 
-        placeholder="New task"
+    <form className="task-form" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        className="task-input"
+        placeholder="Enter a new task"
+        value={taskDescription}
+        onChange={(e) => setTaskDescription(e.target.value)}
       />
-      <button type="submit">Add Task</button>
+      <button type="submit" className="task-submit">Add Task</button>
     </form>
   );
 };

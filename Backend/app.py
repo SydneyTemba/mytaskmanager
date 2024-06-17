@@ -1,17 +1,22 @@
-# app.py
-
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends
-from typing import List
+from pydantic import BaseModel
 import sqlite3
 
 from models.task import Task
 
 app = FastAPI()
 
-DATABASE_URL = "sqlite:///./test.db"
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
+# Model for Task
+class TaskModel(BaseModel):
+    id: int = None
+    description: str
+
+# Database Connection
 def get_db():
-    conn = sqlite3.connect("test.db")
+    conn = sqlite3.connect("db.sqlite")
     try:
         yield conn
     finally:
@@ -19,20 +24,11 @@ def get_db():
 
 @app.on_event("startup")
 def startup():
-    conn = sqlite3.connect("test.db")
+    conn = sqlite3.connect("db.sqlite")
     Task.create_table(conn)
 
-@app.get("/")
-async def read_root():
-    return {"message": "Welcome to the Task Manager API"}
-
-@app.post("/tasks/", response_model=Task)
-async def create_task(description: str, db: sqlite3.Connection = Depends(get_db)):
-    task = Task(description=description)
+@app.post("/tasks", response_model=TaskModel)
+def create_task(data: TaskModel, db: sqlite3.Connection = Depends(get_db)):
+    task = Task(description=data.description)
     saved_task = task.save(db)
-    return saved_task
-
-@app.get("/tasks/{task_id}", response_model=Task)
-async def read_task(task_id: int, db: sqlite3.Connection = Depends(get_db)):
-    task = Task.find_one(db, task_id)
-    return task
+    return saved_task.to_dict()

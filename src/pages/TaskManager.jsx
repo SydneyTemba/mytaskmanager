@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TaskList from '../components/TaskList';
 import TaskForm from '../components/TaskForm';
-//import './TaskManager.css';
+
 
 const TaskManager = () => {
   const [tasks, setTasks] = useState([]);
+  const [error, setError] = useState(null);
 
   const addTask = (task) => {
-    setTasks([...tasks, task]);
+    fetch(`http://127.0.0.1:8000/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ description: task.description }), // Ensure the format matches
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.detail) {
+          throw new Error(data.detail);
+        }
+        setTasks([...tasks, data]);
+      })
+      .catch((err) => setError(err.message));
   };
 
   const deleteTask = (index) => {
@@ -24,6 +39,7 @@ const TaskManager = () => {
       <section className="task-form-section">
         <TaskForm addTask={addTask} />
       </section>
+      {error && <p className="error">{error}</p>}
       <section className="task-list-section">
         <TaskList tasks={tasks} deleteTask={deleteTask} />
       </section>
