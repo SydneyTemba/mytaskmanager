@@ -13,7 +13,7 @@ const TaskManager = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ description: task.description }), // Ensure the format matches
+      body: JSON.stringify({ description: task.description }), 
     })
       .then((res) => res.json())
       .then((data) => {
